@@ -9,7 +9,7 @@ const placesControllers = require("../controllers/places-controllers");
 
 // **********************  MIDDLEWARE FUNCTIONS & CONTROLLERS  **********************
 router.get("/:pid", placesControllers.getPlaceById);
-router.get("/user/:pid", placesControllers.getPlaceByUserId);
+router.get("/user/:uid", placesControllers.getPlaces ByUserId);
 router.post("/", placesControllers.createPlace);
 router.patch("/:pid", placesControllers.updatePlace);
 router.delete("/:pid", placesControllers.deletePlace);

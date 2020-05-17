@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 
 // ********************** MIDDLEWARE FUNCTIONS **********************
 const placesRoutes = require("./routes/places-routes");
+
 // CAll the Error Model (our own model)
 const HttpError = require("./models/http-error");
 
