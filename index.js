@@ -7,4 +7,4 @@ const placesRoutes = require("./routes/places-routes");
 app.use("/api/places", placesRoutes);
 
 // Start server
-app.listen(5000);
+app.listen(3001);
