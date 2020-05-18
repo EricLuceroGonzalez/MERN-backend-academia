@@ -8,9 +8,16 @@ const DUMMY_USERS = [
 const getUsers = (req, res, next) => {
   res.json({ DUMMY_USERS });
 };
-const signup = (req, res, next) => {
-  const { userName, email, password } = req.body;
 
+const signup = (req, res, next) => {
+  const { name, email, password } = req.body;
+
+  //   Check if he user already exists
+  const hasUser = DUMMY_USERS.find((user) => user.email === email);
+  if (hasUser) {
+      throw new HttpError(`Could not create error. Email : ${email} already exists`,422)
+      
+  }
   const createdUser = {
     id: uuidv4(),
     name,

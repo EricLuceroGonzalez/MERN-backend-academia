@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 
 // ********************** MIDDLEWARE FUNCTIONS **********************
 const placesRoutes = require("./routes/places-routes");
+const usersRoutes = require("./routes/users-routes");
 
 // CAll the Error Model (our own model)
 const HttpError = require("./models/http-error");
@@ -12,6 +13,7 @@ const app = express();
 app.use(bodyParser.json());
 
 app.use("/api/places", placesRoutes);
+app.use("/api/users", usersRoutes);
 // Error handler when no endpoint or direction is found "NEXT()""
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route", 404);
