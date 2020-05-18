@@ -2,6 +2,8 @@
 const { v4: uuidv4 } = require("uuid");
 // CAll the Error Model (our own model)
 const HttpError = require("../models/http-error");
+// Get the coordinates
+const getCoordsForAddress = require("../utils/location");
 
 // Get the validator RESULTS:
 const { validationResult } = require("express-validator");
@@ -46,17 +48,22 @@ const getPlacesByUserId = (req, res, next) => {
   res.json({ places });
 };
 
-const createPlace = (req, res, next) => {
-  // Call validation RESULT before, to check validity 
+const createPlace = async (req, res, next) => {
+  // Call validation RESULT before, to check validity
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-      console.log(errors);
-      
-    throw new HttpError("Invalid inpts, please check your data", 422 );
+    console.log(errors);
+    next(new HttpError("Invalid inpts, please check your data", 422));
   }
   // instead of 'const title = req.body.title' ... we do:
-  const { title, description, coordinates, address, creator } = req.body;
-  console.log(req.body);
+  const { title, description, address, creator } = req.body;
+  //   Convert Address to coordinates: INSIDE  try-catch because getCoordsForAddress function has error throw inside
+  let coordinates;
+  try {
+    coordinates = await getCoordsForAddress(address);
+  } catch (error) {
+    return next(error); // Because we use await
+  }
 
   const createdPlace = {
     id: uuidv4(),
@@ -74,12 +81,12 @@ const createPlace = (req, res, next) => {
 };
 
 const updatePlace = (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        console.log(errors);
-        
-      throw new HttpError("Invalid inpts, please check your data", 422 );
-    }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors);
+
+    throw new HttpError("Invalid inpts, please check your data", 422);
+  }
   const { title, description } = req.body;
   const placeId = req.params.pid;
 
