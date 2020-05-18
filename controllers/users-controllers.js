@@ -2,6 +2,9 @@
 const HttpError = require("../models/http-error");
 const { v4: uuidv4 } = require("uuid");
 
+// Get the validator RESULTS:
+const { validationResult } = require("express-validator");
+
 const DUMMY_USERS = [
   { id: "u1", name: "Eric Lucero", email: "eric@test.com", password: "test" },
 ];
@@ -10,13 +13,22 @@ const getUsers = (req, res, next) => {
 };
 
 const signup = (req, res, next) => {
+  // Call validation RESULT before, to check validity
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors);
+
+    throw new HttpError("Invalid inpts, please check your data", 422);
+  } 
   const { name, email, password } = req.body;
 
   //   Check if he user already exists
   const hasUser = DUMMY_USERS.find((user) => user.email === email);
   if (hasUser) {
-      throw new HttpError(`Could not create error. Email : ${email} already exists`,422)
-      
+    throw new HttpError(
+      `Could not create error. Email : ${email} already exists`,
+      422
+    );
   }
   const createdUser = {
     id: uuidv4(),

@@ -3,6 +3,8 @@ const { v4: uuidv4 } = require("uuid");
 // CAll the Error Model (our own model)
 const HttpError = require("../models/http-error");
 
+// Get the validator RESULTS:
+const { validationResult } = require("express-validator");
 // Dummy data:
 let DUMMY_PLACES = [
   {
@@ -45,6 +47,13 @@ const getPlacesByUserId = (req, res, next) => {
 };
 
 const createPlace = (req, res, next) => {
+  // Call validation RESULT before, to check validity 
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      console.log(errors);
+      
+    throw new HttpError("Invalid inpts, please check your data", 422 );
+  }
   // instead of 'const title = req.body.title' ... we do:
   const { title, description, coordinates, address, creator } = req.body;
   console.log(req.body);
@@ -65,6 +74,12 @@ const createPlace = (req, res, next) => {
 };
 
 const updatePlace = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        console.log(errors);
+        
+      throw new HttpError("Invalid inpts, please check your data", 422 );
+    }
   const { title, description } = req.body;
   const placeId = req.params.pid;
 
@@ -77,6 +92,7 @@ const updatePlace = (req, res, next) => {
   DUMMY_PLACES[placeIndex] = updatedPlace;
   res.status(200).json({ place: updatedPlace });
 };
+
 const deletePlace = (req, res, next) => {
   const placeId = req.params.pid;
   //   redefine, except the place with id = placeId
