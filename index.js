@@ -32,7 +32,7 @@ app.use((error, req, res, next) => {
   res.json({ message: error.message || "An unknown error ocurred" });
 });
 
-// CALL MONGOOSE
+// CALL MONGOOSE and Connect
 mongoose
   .connect(process.env.DB_URI, {
     useNewUrlParser: true,

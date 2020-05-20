@@ -21,7 +21,7 @@ router.post(
     check("address").not().isEmpty(),
   ],
   placesControllers.createPlace
-);
+);  
 router.patch(
   "/:pid",
   [
