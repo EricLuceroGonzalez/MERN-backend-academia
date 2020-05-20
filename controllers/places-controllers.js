@@ -77,7 +77,8 @@ const createPlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log(errors);
-    next(new HttpError("Invalid inpts, please check your data", 422));
+    const error = new HttpError("Invalid inpts, please check your data", 422);
+    return next(error);
   }
   // instead of 'const title = req.body.title' ... we do:
   const { title, description, address, creator } = req.body;
@@ -114,7 +115,8 @@ const updatePlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log(errors);
-    throw new HttpError("Invalid inpts, please check your data", 422);
+    const error = new HttpError("Invalid inpts, please check your data", 422);
+    return next(error);
   }
   const { title, description } = req.body;
   const placeId = req.params.pid;

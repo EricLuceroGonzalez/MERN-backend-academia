@@ -4,7 +4,6 @@ const Schema = mongoose.Schema;
 
 // Create the Schema:
 const placeSchema = new Schema({
-  id: { type: String, require: true },
   title: { type: String, require: true },
   image: { type: String, require: true },
   address: { type: String, require: true },
