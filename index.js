@@ -1,10 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-require('dotenv').config()
+const mongoose = require("mongoose");
+require("dotenv").config();
 // ********************** MIDDLEWARE FUNCTIONS **********************
 const placesRoutes = require("./routes/places-routes");
 const usersRoutes = require("./routes/users-routes");
-
+const port = 3001;
 // CAll the Error Model (our own model)
 const HttpError = require("./models/http-error");
 
@@ -30,5 +31,18 @@ app.use((error, req, res, next) => {
   res.status(error.code || 500);
   res.json({ message: error.message || "An unknown error ocurred" });
 });
-// Start server
-app.listen(3001);
+
+// CALL MONGOOSE
+mongoose
+  .connect(process.env.DB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    // Start server
+    app.listen(port);
+    console.log(`Connected to Mongo. Port: \n${port}`);
+  })
+  .catch((err) => {
+    console.log(`No conection. Errors: \n ${err}`);
+  });
