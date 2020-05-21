@@ -2,13 +2,16 @@
 const { v4: uuidv4 } = require("uuid");
 // CAll the Error Model (our own model)
 const HttpError = require("../models/http-error");
+// Get mongoose
+const mongoose = require("mongoose");
+// Get the validator RESULTS:
+const { validationResult } = require("express-validator");
 // Get the coordinates
 const getCoordsForAddress = require("../utils/location");
 // Get the Place Model
 const Place = require("../models/Place");
+const User = require("../models/User");
 
-// Get the validator RESULTS:
-const { validationResult } = require("express-validator");
 // Dummy data:
 let DUMMY_PLACES = [
   {
@@ -100,9 +103,33 @@ const createPlace = async (req, res, next) => {
     creator,
   });
 
-  //   Update dataset ---> save() to Mongo, as async => await
+  // Check if the user creator already exists:
+  let user;
   try {
-    await createdPlace.save();
+    user = await User.findById(creator);
+  } catch (err) {
+    const error = new HttpError("Creating place failed.", 500);
+    return next(error);
+  }
+
+  if (!user) {
+    const error = new HttpError("Could not find user for provided id.", 404);
+    return next(error);
+  }
+  console.log(user);
+
+  //   Update dataset ---> save() to Mongo, as async => await
+  //   SESSIONS + TRANSACTIONS
+  try {
+    // Session: Start
+    const sess = await mongoose.startSession();
+    // ----> in the current session, start a TRANSACTION
+    sess.startTransaction();
+    await createdPlace.save({ session: sess });
+    // Check that the place id adds to user:
+    user.places.push(createdPlace);
+    await user.save({ session: sess }); // ---> Update now with the place
+    sess.commitTransaction(); // ---> Changes will commit
   } catch (err) {
     const error = new HttpError("Creating place failed, please try again", 500);
     return next(error);
@@ -148,9 +175,34 @@ const deletePlace = async (req, res, next) => {
 
   let place;
   try {
-    place = await Place.findByIdAndDelete(placeId);
+    // Get the place and populate the creator:
+    place = await Place.findById(placeId).populate("creator");
+    
   } catch (err) {
     const error = new HttpError("Something went wrong", 500);
+    return next(error);
+  }
+  console.log('place:');
+  console.log(place);
+  if (!place) {
+    const error = new HttpError('Could not find place for this id.', 404);
+    return next(error);
+  }
+
+  // Start a session, delete the place and creator founded
+  try {
+    // Session: Start
+    const sess = await mongoose.startSession();
+    // ----> in the current session, start a TRANSACTION
+    sess.startTransaction();
+    // Remove the place:
+    await place.remove({ session: sess });
+    // Access the creator and remove
+    place.creator.places.pull(place);
+    await place.creator.save({ session: sess });
+    await sess.commitTransaction();
+  } catch (err) {
+    const error = new HttpError("Something went wrong", 404);
     return next(error);
   }
 

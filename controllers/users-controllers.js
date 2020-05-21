@@ -11,8 +11,20 @@ const { validationResult } = require("express-validator");
 const DUMMY_USERS = [
   { id: "u1", name: "Eric Lucero", email: "eric@test.com", password: "test" },
 ];
-const getUsers = (req, res, next) => {
-  res.json({ DUMMY_USERS });
+
+const getUsers = async (req, res, next) => {
+  // FIND and retrieve only USERNAME and PASSWORD
+  let users;
+  try {
+    users = await User.find({}, "-password");
+  } catch (err) {
+    const error = new HttpError(
+      "Fetching users failed, please try again later",
+      500
+    );
+    return next(error);
+  }
+  res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 
 const signup = async (req, res, next) => {
@@ -24,7 +36,7 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
-  const { name, email, password, places } = req.body;
+  const { name, email, password } = req.body;
 
   //   Check if he user already exists
   let existingUser;
@@ -48,7 +60,7 @@ const signup = async (req, res, next) => {
     name,
     email,
     password,
-    places,
+    places:[],
     image: "https://randomuser.me/api/portraits/lego/6.jpg",
   });
 

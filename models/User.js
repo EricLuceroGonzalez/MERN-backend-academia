@@ -9,7 +9,7 @@ const userSchema = new Schema({
   email: { type: String, require: true, unique: true },
   password: { type: String, require: true, minlength: 6 },
   image: { type: String, require: true },
-  places: { type: String, require: true },
+  places: [{ type: mongoose.Types.ObjectId, required: true, ref: "Place" }],
 });
 
 // Check for unique Email:
