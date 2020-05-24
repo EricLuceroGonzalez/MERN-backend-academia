@@ -13,6 +13,18 @@ const app = express();
 // Bring the BODYPARSER Middleware --> will parse any request body extract json data to JS object and call next()
 app.use(bodyParser.json());
 
+// CORS error: set the headers to prevent (Middleware):
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.setHeader("Access-Controll-Allow-Methods", "GET, POST, PATCH, DELETE");
+  // ---> Continue flow to other middewares
+  next();
+});
+
 app.use("/api/places", placesRoutes);
 app.use("/api/users", usersRoutes);
 

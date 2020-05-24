@@ -1,5 +1,3 @@
-// const uuid = require("uuid");
-const { v4: uuidv4 } = require("uuid");
 // CAll the Error Model (our own model)
 const HttpError = require("../models/http-error");
 // Get mongoose
@@ -11,18 +9,6 @@ const getCoordsForAddress = require("../utils/location");
 // Get the Place Model
 const Place = require("../models/Place");
 const User = require("../models/User");
-
-// Dummy data:
-let DUMMY_PLACES = [
-  {
-    id: "p1",
-    title: "Empire State Building",
-    description: "One of the most famouse sky scrappers",
-    location: { lat: 40.7484874, lng: -73.9871516 },
-    address: "20 W 34th St New York",
-    creator: "u1",
-  },
-];
 
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -51,17 +37,18 @@ const getPlaceById = async (req, res, next) => {
 const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.uid;
 
-  let placeByUser;
-  // get the places from Mongo FIND-BY-ID
+  // Change from placeByUser ---> to
+  let userWithPlaces;
+  // get the users from Mongo FIND-BY-ID
   try {
-    placeByUser = await Place.find({ creator: userId });
+    userWithPlaces = await User.findById({ userId }).populate("places");
   } catch (error) {
     new HttpError(`Could not find a place.`, 500);
     return next(error);
   }
 
   // Handle Error:
-  if (!placeByUser) {
+  if (!userWithPlaces || userWithPlaces.places.length === 0) {
     const error = new HttpError(
       `Could not find a place for the id: ${userId}`,
       404
@@ -71,7 +58,9 @@ const getPlacesByUserId = async (req, res, next) => {
   // Sending the Place object parsed as plain JS object with '.toObject'
   // Eliminating the _id with 'getters'
   res.json({
-    places: placeByUser.map((place) => place.toObject({ getters: true })),
+    places: userWithPlaces.places.map((place) =>
+      place.toObject({ getters: true })
+    ),
   });
 };
 
@@ -177,15 +166,14 @@ const deletePlace = async (req, res, next) => {
   try {
     // Get the place and populate the creator:
     place = await Place.findById(placeId).populate("creator");
-    
   } catch (err) {
     const error = new HttpError("Something went wrong", 500);
     return next(error);
   }
-  console.log('place:');
+  console.log("place:");
   console.log(place);
   if (!place) {
-    const error = new HttpError('Could not find place for this id.', 404);
+    const error = new HttpError("Could not find place for this id.", 404);
     return next(error);
   }
 
