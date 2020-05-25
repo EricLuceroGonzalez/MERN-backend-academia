@@ -41,7 +41,7 @@ const getPlacesByUserId = async (req, res, next) => {
   let userWithPlaces;
   // get the users from Mongo FIND-BY-ID
   try {
-    userWithPlaces = await User.findById({ userId }).populate("places");
+    userWithPlaces = await User.findById(userId).populate("places");
   } catch (error) {
     new HttpError(`Could not find a place.`, 500);
     return next(error);
@@ -105,6 +105,7 @@ const createPlace = async (req, res, next) => {
     const error = new HttpError("Could not find user for provided id.", 404);
     return next(error);
   }
+  console.log("user");
   console.log(user);
 
   //   Update dataset ---> save() to Mongo, as async => await
@@ -118,9 +119,12 @@ const createPlace = async (req, res, next) => {
     // Check that the place id adds to user:
     user.places.push(createdPlace);
     await user.save({ session: sess }); // ---> Update now with the place
-    sess.commitTransaction(); // ---> Changes will commit
+    await sess.commitTransaction(); // ---> Changes will commit
   } catch (err) {
-    const error = new HttpError("Creating place failed, please try again", 500);
+    const error = new HttpError(
+      "Creating place failed. Please try again.",
+      500
+    );
     return next(error);
   }
   //   Send RESPONSE
@@ -131,7 +135,7 @@ const updatePlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log(errors);
-    const error = new HttpError("Invalid inpts, please check your data", 422);
+    const error = new HttpError("Invalid inputs, please check your data", 422);
     return next(error);
   }
   const { title, description } = req.body;

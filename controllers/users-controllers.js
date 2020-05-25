@@ -1,16 +1,11 @@
-// CAll the Error Model (our own model)
-const HttpError = require("../models/http-error");
-const { v4: uuidv4 } = require("uuid");
-
-// Get the user schema:
-const User = require("../models/User");
-
 // Get the validator RESULTS:
 const { validationResult } = require("express-validator");
 
-const DUMMY_USERS = [
-  { id: "u1", name: "Eric Lucero", email: "eric@test.com", password: "test" },
-];
+// CAll the Error Model (our own model)
+const HttpError = require("../models/http-error");
+
+// Get the user schema:
+const User = require("../models/User");
 
 const getUsers = async (req, res, next) => {
   // FIND and retrieve only USERNAME and PASSWORD
@@ -60,7 +55,7 @@ const signup = async (req, res, next) => {
     name,
     email,
     password,
-    places:[],
+    places: [],
     image: "https://randomuser.me/api/portraits/lego/6.jpg",
   });
 
@@ -94,7 +89,10 @@ const login = async (req, res, next) => {
     const error = new HttpError("Invalid credentials, cant log in", 401);
     return next(error);
   }
-  res.json({ message: "Logged in!" });
+  res.json({
+    message: "Logged in!",
+    user: existingUser.toObject({ getters: true }),
+  });
 };
 
 exports.getUsers = getUsers;

@@ -5,7 +5,6 @@ const HttpError = require("../models/http-error");
 
 // async returns this function in a PROMISE
 async function getCoordsForAddress(address) {
-    console.log(API_KEY);
     console.log(address);
     
   const response = await axios.get(
@@ -13,7 +12,6 @@ async function getCoordsForAddress(address) {
       address
     )}&key=${API_KEY}`
   );
-  console.log(response.data);
   
   const data = response.data;
   if (!data || data.status === "ZER0_RESULTS") {
