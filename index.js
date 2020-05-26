@@ -1,3 +1,6 @@
+// File Systema
+const fs = require("fs");
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -37,6 +40,12 @@ app.use((req, res, next) => {
 
 // Special middleware function - Express knows is Error Handling (4 parameters)
 app.use((error, req, res, next) => {
+  // Find the file on the request and ERROR ---> Not save
+  if (req.file) {
+    fs.unlink(req.file.path, (err) => {
+      console.log(`The error on file: ${err}`);
+    });
+  }
   if (res.headerSent) {
     return next(error);
   }

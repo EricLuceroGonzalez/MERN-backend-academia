@@ -56,7 +56,7 @@ const signup = async (req, res, next) => {
     email,
     password,
     places: [],
-    image: "https://randomuser.me/api/portraits/lego/6.jpg",
+    image: req.file.path,
   });
 
   //   Create USER ---> save() to Mongo, as async => await
