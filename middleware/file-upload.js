@@ -9,8 +9,10 @@ const MIME_TYPE_MAP = {
 
 // Excecute Middleware as function that will be passed a configuration object
 const fileUpload = multer({
-  // Setting the multer saving
+  // Setting the multer saving --->
+  //   THE LIMIT SIZE
   limits: 500000,
+  //   STORAGE HANDLE
   storage: multer.diskStorage({
     destination: (req, file, callback) => {
       callback(null, "uploads/images");
@@ -21,6 +23,13 @@ const fileUpload = multer({
       callback(null, uuidv4() + "." + ext);
     },
   }),
+  //   CONTROL FILE
+  fileFilter: (req, file, callback) => {
+    // Compare to MIME TYPe and set to true or false (if null)
+    const isValid = !!MIME_TYPE_MAP[file.mimetype];
+    let error = isValid ? null : new Error("invalid mime type!");
+    callback(error, isValid);
+  },
 });
 
 // We will use this in user-routes.js
