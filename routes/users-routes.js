@@ -10,10 +10,14 @@ const router = express.Router();
 // Call the controllers
 const usersControllers = require("../controllers/users-controllers");
 
+// Call file-upload.js
+const fileUpload = require("../middleware/file-upload");
+
 // **********************  MIDDLEWARE FUNCTIONS & CONTROLLERS  **********************
 router.get("/", usersControllers.getUsers);
 router.post(
   "/signup",
+  fileUpload.single("image"),
   [
     check("name").not().isEmpty(),
     check("email").normalizeEmail().isEmail(), // Test@test.com --> test@test.com
