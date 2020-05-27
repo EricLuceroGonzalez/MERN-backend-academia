@@ -1,5 +1,7 @@
-// File Systema
+// File System
 const fs = require("fs");
+// point to folder, absolute path
+const path = require("path");
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -15,6 +17,9 @@ const HttpError = require("./models/http-error");
 const app = express();
 // Bring the BODYPARSER Middleware --> will parse any request body extract json data to JS object and call next()
 app.use(bodyParser.json());
+
+// Add a middleware to handle the image path GET method
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
 
 // CORS error: set the headers to prevent (Middleware):
 app.use((req, res, next) => {
