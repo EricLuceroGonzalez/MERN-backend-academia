@@ -4,6 +4,7 @@ const { validationResult } = require("express-validator");
 // Encrypt libraries
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
 // CAll the Error Model (our own model)
 const HttpError = require("../models/http-error");
 
@@ -118,7 +119,7 @@ const login = async (req, res, next) => {
 
   //   CHECK IF EMAIL IS CORRECT (dummy version)
   if (!existingUser) {
-    const error = new HttpError("CAnt find the user, please register", 401);
+    const error = new HttpError("Cant find the user, please register", 403);
     return next(error);
   }
 
@@ -136,7 +137,7 @@ const login = async (req, res, next) => {
 
   // Check id !isValidPassword
   if (!isValidPassword) {
-    const error = new HttpError("Cant find the user, please try again.", 401);
+    const error = new HttpError("Cant find the user, please try again.", 403);
     return next(error);
   }
 
