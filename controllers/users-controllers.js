@@ -1,6 +1,7 @@
 // Get the validator RESULTS:
 const { validationResult } = require("express-validator");
 
+const bcrypt = require("bcrypt");
 // CAll the Error Model (our own model)
 const HttpError = require("../models/http-error");
 
@@ -51,10 +52,23 @@ const signup = async (req, res, next) => {
     );
     return next(error);
   }
+
+  // With bycrpt we HASH the password from incoming request:
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(password, 12);
+  } catch (err) {
+    const error = new HttpError(
+      "Could not create user, please try again.",
+      500
+    );
+    return next(error);
+  }
+
   const createdUser = new User({
     name,
     email,
-    password,
+    password: hashedPassword, // Store the hashed password
     places: [],
     image: req.file.path,
   });
@@ -83,10 +97,31 @@ const login = async (req, res, next) => {
     );
     return next(error);
   }
-  //   CHECK IF EMAIL OR PASSWORD IS CORRECT (dummy version)
 
-  if (!existingUser || existingUser.password !== password) {
-    const error = new HttpError("Invalid credentials, cant log in", 401);
+  //   CHECK IF EMAIL IS CORRECT (dummy version)
+  if (!existingUser) {
+    const error = new HttpError("CAnt find the user, please register", 401);
+    return next(error);
+  }
+
+  // Check the password, compare to the encripted and give a token
+  let isValidPassword = false;
+  try {
+    isValidPassword = await bcrypt.compare(password, existingUser.password);
+  } catch (err) {
+    const error = new HttpError(
+      "Could not check your data, please check your credentials",
+      500
+    );
+    return next(error);
+  }
+
+  // Check id !isValidPassword
+  if (!isValidPassword) {
+    const error = new HttpError(
+      "Cant find the user, please try again.",
+      401
+    );
     return next(error);
   }
   res.json({
