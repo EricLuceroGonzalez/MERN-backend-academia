@@ -14,7 +14,7 @@ module.exports = (req, res, next) => {
     }
 
     // Verify token:
-    const decodedToken = jwt.verify(token, "supersecret_dont_share");
+    const decodedToken = jwt.verify(token, process.env.JWT_KEY);
     // Add data to request:
     req.userData = { userId: decodedToken.userId };
     next(); // COntonue the code to the routes

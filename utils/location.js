@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const API_KEY = process.env.API_GOOGLE;
+const API_KEY = process.env.API_key_GOOGLE;
 const HttpError = require("../models/http-error");
 
 // async returns this function in a PROMISE
