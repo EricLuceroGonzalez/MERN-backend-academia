@@ -73,7 +73,7 @@ const createPlace = async (req, res, next) => {
     return next(error);
   }
   // instead of 'const title = req.body.title' ... we do:
-  const { title, description, address, creator } = req.body;
+  const { title, description, address } = req.body;
   //   Convert Address to coordinates: INSIDE  try-catch because getCoordsForAddress function has error throw inside
   let coordinates;
   try {
@@ -88,13 +88,13 @@ const createPlace = async (req, res, next) => {
     location: coordinates,
     image: req.file.path,
     address,
-    creator,
+    creator: req.userData.userId,
   });
 
   // Check if the user creator already exists:
   let user;
   try {
-    user = await User.findById(creator);
+    user = await User.findById(req.userData.userId);
   } catch (err) {
     const error = new HttpError("Creating place failed.", 500);
     return next(error);
